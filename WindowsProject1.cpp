@@ -56,6 +56,20 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 }
 
 
+static void SetClientRect(HWND hWnd, int width, int height)
+{
+    RECT crt;
+    DWORD Style, ExStyle;
+
+    SetRect(&crt, 0, 0, width, height);
+    Style = (DWORD)GetWindowLongPtr(hWnd, GWL_STYLE);
+    ExStyle = (DWORD)GetWindowLongPtr(hWnd, GWL_EXSTYLE);
+    AdjustWindowRectEx(&crt, Style, GetMenu(hWnd) != NULL, ExStyle);
+    if (Style & WS_VSCROLL)crt.right += GetSystemMetrics(SM_CXVSCROLL);
+    if (Style & WS_HSCROLL)crt.bottom += GetSystemMetrics(SM_CYVSCROLL);
+    SetWindowPos(hWnd, NULL, 0, 0, crt.right - crt.left, crt.bottom - crt.top,
+        SWP_NOMOVE | SWP_NOZORDER);
+}
 
 //
 //  함수: MyRegisterClass()
@@ -97,7 +111,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-   HWND hWnd = CreateWindowEx(WS_EX_TOPMOST, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW&(~WS_THICKFRAME),
+   HWND hWnd = CreateWindowEx(WS_EX_TOPMOST, szWindowClass, szTitle, WS_OVERLAPPEDWINDOW&(~WS_THICKFRAME) & (~WS_MAXIMIZEBOX),
       CW_USEDEFAULT, CW_USEDEFAULT, 400, 400, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
@@ -105,6 +119,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
+   SetClientRect(hWnd, 400, 400);
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -145,6 +160,8 @@ static unsigned int      version;
 void* extradriverdata(nullptr);  // 본 예제에서는 사용 x
 
 std::queue<FMOD::Channel*>channels;
+
+HBITMAP bitmapFmodasio, oldbit;
 
 void ReleaseChannel(FMOD::Channel* ch)
 {
@@ -278,6 +295,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+            bitmapFmodasio = LoadBitmap(hInst, MAKEINTRESOURCE(IDB_BITMAP_FMODASIO));
+            HDC hMemDC = CreateCompatibleDC(hdc);
+            oldbit = (HBITMAP)SelectObject(hMemDC, bitmapFmodasio);
+            BitBlt(hdc, 0, 0, 400, 400, hMemDC, 0, 0, SRCCOPY);
+            SelectObject(hdc, oldbit);
+            DeleteObject(bitmapFmodasio);
+            DeleteDC(hMemDC);
             EndPaint(hWnd, &ps);
         }
         break;

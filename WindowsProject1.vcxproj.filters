@@ -51,5 +51,8 @@
     <Image Include="WindowsProject1.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="fmodasio.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
 </Project>

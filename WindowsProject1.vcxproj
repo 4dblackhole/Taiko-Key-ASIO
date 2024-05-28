@@ -167,6 +167,7 @@
     <ResourceCompile Include="WindowsProject1.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="fmodasio.bmp" />
     <Image Include="small.ico" />
     <Image Include="WindowsProject1.ico" />
   </ItemGroup>
