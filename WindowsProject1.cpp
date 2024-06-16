@@ -174,19 +174,23 @@ void ReleaseChannel(FMOD::Channel* ch, UINT soundLength)
     ch->stop();
 }
 
-void PlayDon()
+static void PlayDon()
 {
-    donChannel->stop();
+    // stop the music if the same file is running
+    thread st([&](FMOD::Channel* ch) {ch->stop(); }, donChannel);
     _system->playSound(don, 0, false, &donChannel);
     thread th(ReleaseChannel, donChannel, donLength);
+    st.detach();
     th.detach();
 }
 
-void PlayKat()
+static void PlayKat()
 {
-    katChannel->stop();
+    // stop the music if the same file is running
+    thread st([&](FMOD::Channel* ch) {ch->stop(); }, katChannel);
     _system->playSound(kat, 0, false, &katChannel);
     thread th(ReleaseChannel, katChannel, katLength);
+    st.detach();
     th.detach();
 }
 
