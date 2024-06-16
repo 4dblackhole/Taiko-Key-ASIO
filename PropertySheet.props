@@ -12,9 +12,11 @@
   <ItemGroup>
     <BuildMacro Include="FmodLib">
       <Value>$(FmodLib)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
     <BuildMacro Include="FmodInc">
       <Value>$(FmodInc)</Value>
+      <EnvironmentVariable>true</EnvironmentVariable>
     </BuildMacro>
   </ItemGroup>
 </Project>
