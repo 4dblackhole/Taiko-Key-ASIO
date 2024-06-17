@@ -155,43 +155,24 @@ static FMOD::Sound* sound(nullptr);
 static FMOD::Sound* don(nullptr);
 static FMOD::Sound* kat(nullptr);
 UINT donLength{}, katLength{};
-static FMOD::Channel* donChannel(nullptr);
-static FMOD::Channel* katChannel(nullptr);
 static FMOD_RESULT       result;
 static unsigned int      version;
-void* extradriverdata(nullptr);  // 본 예제에서는 사용 x
+void* extradriverdata(nullptr);
 
 std::queue<FMOD::Channel*>channels;
 
 HBITMAP bitmapFmodasio, oldbit;
 
-void ReleaseChannel(FMOD::Channel* ch, UINT soundLength)
-{
-    using namespace FMOD;
-    constexpr UINT playsoundoverhead = 30;
-    
-    this_thread::sleep_for(chrono::milliseconds(soundLength + playsoundoverhead));
-    ch->stop();
-}
-
 static void PlayDon()
 {
-    // stop the music if the same file is running
-    thread st([&](FMOD::Channel* ch) {ch->stop(); }, donChannel);
-    _system->playSound(don, 0, false, &donChannel);
-    thread th(ReleaseChannel, donChannel, donLength);
-    st.detach();
-    th.detach();
+    static FMOD::Channel* localChannel(nullptr);
+    _system->playSound(don, 0, false, &localChannel);
 }
 
 static void PlayKat()
 {
-    // stop the music if the same file is running
-    thread st([&](FMOD::Channel* ch) {ch->stop(); }, katChannel);
-    _system->playSound(kat, 0, false, &katChannel);
-    thread th(ReleaseChannel, katChannel, katLength);
-    st.detach();
-    th.detach();
+    static FMOD::Channel* localChannel(nullptr);
+    _system->playSound(kat, 0, false, &localChannel);
 }
 
 RhythmInputManager kddk;
@@ -209,6 +190,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         result = _system->getVersion(&version);
         if (result != FMOD_OK) return -1;
 
+        /*
+        * Get audio driver informations
         int drivenums;
         _system->getNumDrivers(&drivenums);
         for (int i = 0; i < drivenums; ++i)
@@ -222,31 +205,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int d = 3;
             //MessageBox(hWnd, uni, _T("Audio Driver"), MB_OK);
         }
+        */
 
-        unsigned int bufferlen;
-        int buffers;
-        _system->getDSPBufferSize(&bufferlen, &buffers);
         _system->setDSPBufferSize(64, 4); 
-        _system->getDSPBufferSize(&bufferlen, &buffers);
-
-        FMOD_OUTPUTTYPE t;
-        _system->getOutput(&t);
         _system->setOutput(FMOD_OUTPUTTYPE_ASIO);
-        _system->getOutput(&t);
 
-        result = _system->init(64, FMOD_INIT_NORMAL, extradriverdata);
+        result = _system->init(2, FMOD_INIT_NORMAL, extradriverdata);
         if (result != FMOD_OK) return -1;
         
-        //result = _system->createSound("singing.wav", FMOD_LOOP_NORMAL, 0, &sound);
-        result = _system->createSound("HitSounds/don.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, 0, &don); // wav 파일로부터 sound 생성
-        result = _system->createSound("HitSounds/kat.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, 0, &kat); // wav 파일로부터 sound 생성
+        result = _system->createStream("HitSounds/don.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &don);
+        result = _system->createStream("HitSounds/kat.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &kat);
         if (result != FMOD_OK) return -1;
 
         don->getLength(&donLength, FMOD_TIMEUNIT_MS);
         kat->getLength(&katLength, FMOD_TIMEUNIT_MS);
 
-        //result = _system->playSound(sound,0, false, &channel); // 재생. 단 이때 딱 한번만 실행되므로 제대로 사운드가 끝까지 재생되지 않는다.  무한루프 안에서 시스템 객체를 계~~속 업데이트 시켜줘야 함.
-        //if (result != FMOD_OK) return -1;
         kddk.RegisterAction(0, PlayKat);
         kddk.RegisterAction(1, PlayDon);
         kddk.RegisterAction(2, PlayDon);
