@@ -178,7 +178,7 @@ static void PlayDon()
 {
     // stop the music if the same file is running
     thread st([&](FMOD::Channel* ch) {ch->stop(); }, donChannel);
-    _system->playSound(don, 0, false, &donChannel);
+    _system->playSound(don, 0, false, nullptr);
     thread th(ReleaseChannel, donChannel, donLength);
     st.detach();
     th.detach();
@@ -234,7 +234,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         _system->setOutput(FMOD_OUTPUTTYPE_ASIO);
         _system->getOutput(&t);
 
-        result = _system->init(64, FMOD_INIT_NORMAL, extradriverdata);  // 시스템 초기화 : chaneel 32개까지 사용하겠다.
+        result = _system->init(64, FMOD_INIT_NORMAL, extradriverdata);
         if (result != FMOD_OK) return -1;
         
         //result = _system->createSound("singing.wav", FMOD_LOOP_NORMAL, 0, &sound);
