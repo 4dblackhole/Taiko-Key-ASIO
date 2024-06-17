@@ -178,7 +178,7 @@ static void PlayDon()
 {
     // stop the music if the same file is running
     thread st([&](FMOD::Channel* ch) {ch->stop(); }, donChannel);
-    _system->playSound(don, 0, false, nullptr);
+    _system->playSound(don, 0, false, &donChannel);
     thread th(ReleaseChannel, donChannel, donLength);
     st.detach();
     th.detach();
