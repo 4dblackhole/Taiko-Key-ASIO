@@ -21,6 +21,4 @@
 
 #include <fmod.hpp>
 
-#include "RhythmInputManager.h"
-
 using namespace std;

@@ -2,6 +2,8 @@
 //
 
 #include "framework.h"
+#include "RhythmInputManager.h"
+#include "Object/FmodSystem.h"
 #include "WindowsProject1.h"
 
 #define MAX_LOADSTRING 100
@@ -10,6 +12,8 @@
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 TCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 TCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+
+
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -22,6 +26,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPTSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
+#if defined (DEBUG) | defined (_DEBUG)
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -150,32 +158,30 @@ static void RegisterKeyHook(const HWND targetWnd)
     RegisterRawInputDevices(&rawInputDev, 1, sizeof(RAWINPUTDEVICE));
 }
 
-static FMOD::System* _system(nullptr);
-static FMOD::Sound* sound(nullptr);
+static FmodSystem fsys;
+
 static FMOD::Sound* don(nullptr);
 static FMOD::Sound* kat(nullptr);
 UINT donLength{}, katLength{};
-static FMOD_RESULT       result;
-static unsigned int      version;
-void* extradriverdata(nullptr);
 
-std::queue<FMOD::Channel*>channels;
-
-HBITMAP bitmapFmodasio, oldbit;
+static FMOD_RESULT result;
 
 static void PlayDon()
 {
     static FMOD::Channel* localChannel(nullptr);
-    _system->playSound(don, 0, false, &localChannel);
+    fsys.System()->playSound(don, 0, false, &localChannel);
 }
 
 static void PlayKat()
 {
     static FMOD::Channel* localChannel(nullptr);
-    _system->playSound(kat, 0, false, &localChannel);
+    fsys.System()->playSound(kat, 0, false, &localChannel);
 }
 
 RhythmInputManager kddk;
+
+static HWND hCombo, hComboDesc;
+static HBITMAP bitmapFmodasio, oldbit;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -183,38 +189,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
         {
-        RegisterKeyHook(hWnd);
-        result = FMOD::System_Create(&_system);
-        if (result != FMOD_OK) return -1;  
+        RegisterKeyHook(hWnd); //it catches key input when this window has not focus
 
-        result = _system->getVersion(&version);
-        if (result != FMOD_OK) return -1;
+        //Init Ctrls
+        hCombo = CreateWindow(_T("combobox"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL| CBS_DROPDOWNLIST ,
+            70, DriverComboY, 300, 200, hWnd, (HMENU)HwndID::COMBO_DRIVER, hInst, NULL);
+        hComboDesc = CreateWindow(_T("static"), _T("Driver:"), WS_CHILD | WS_VISIBLE | SS_CENTER,
+            10, DriverComboY, 60, 24, hWnd, (HMENU)HwndID::STATIC_COMBO_DRIVER, hInst, NULL);
 
-        /*
-        * Get audio driver informations
-        int drivenums;
-        _system->getNumDrivers(&drivenums);
-        for (int i = 0; i < drivenums; ++i)
-        {
-            char name[256];
-            _system->getDriverInfo(i, (char*)name, sizeof(name), 0, 0, 0, 0);
-            
-            WCHAR uni[256]{};
-            int nLen = MultiByteToWideChar(CP_UTF8, 0, name, (int)strlen(name), NULL, NULL);
-            MultiByteToWideChar(CP_UTF8, 0, name, (int)strlen(name), uni, nLen);
-            int d = 3;
-            //MessageBox(hWnd, uni, _T("Audio Driver"), MB_OK);
-        }
-        */
+        //font
+        HDC dc = GetDC(hWnd);
+        LOGFONT lf;
+        HFONT oldFont = (HFONT)GetCurrentObject(dc, OBJ_FONT);
+        GetObject(oldFont, sizeof(LOGFONT), &lf);
+        lf.lfHeight = 20;
+        lf.lfWidth = 8;
+        lf.lfWeight = FW_BOLD;
+        _stprintf_s(lf.lfFaceName, _T("sans"));
+        HFONT fontSize20 = CreateFontIndirect(&lf);
+        SendMessage(hComboDesc, WM_SETFONT, (WPARAM)fontSize20, MAKELPARAM(TRUE, 0));
+        ReleaseDC(hWnd, dc);
 
-        _system->setDSPBufferSize(64, 4); 
-        _system->setOutput(FMOD_OUTPUTTYPE_ASIO);
+        fsys.Init();
+        fsys.EnumDriverListToComboBox(hCombo);
+        SendMessage(hCombo, CB_SETCURSEL, fsys.GetDriveIdx(), 0);
 
-        result = _system->init(2, FMOD_INIT_NORMAL, extradriverdata);
-        if (result != FMOD_OK) return -1;
-        
-        result = _system->createStream("HitSounds/don.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &don);
-        result = _system->createStream("HitSounds/kat.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &kat);
+        result = fsys.System()->createStream("HitSounds/don.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &don);
+        result = fsys.System()->createStream("HitSounds/kat.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &kat);
         if (result != FMOD_OK) return -1;
 
         don->getLength(&donLength, FMOD_TIMEUNIT_MS);
@@ -224,7 +225,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         kddk.RegisterAction(1, PlayDon);
         kddk.RegisterAction(2, PlayDon);
         kddk.RegisterAction(3, PlayKat);
-    
+        }
+        break;
+    case WM_CTLCOLORSTATIC:
+        if ((HWND)lParam == hComboDesc)
+        {
+            SetTextColor((HDC)wParam, RGB(255, 255, 255));
+            SetBkMode((HDC)wParam, TRANSPARENT);
+            return (INT_PTR)(HBRUSH)GetStockObject(NULL_BRUSH);
+        }
+        break;
+    case WM_SETFONT:
+        {
+
         }
         break;
     case WM_COMMAND:
@@ -233,6 +246,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // 메뉴 선택을 구문 분석합니다:
             switch (wmId)
             {
+            case (int)HwndID::COMBO_DRIVER:
+            {
+                switch (HIWORD(wParam)) 
+                {
+                case CBN_SELCHANGE:
+                    {
+                        fsys.ChangeDrive(SendMessage(hCombo, CB_GETCURSEL, 0, 0));
+                    }  
+                    break;
+                }
+            }
+            break;
+
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -267,6 +293,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_LBUTTONDOWN:
+        {
+            SetFocus(hWnd);
+        }
+        break;
     case WM_KEYDOWN:
         {
             kddk.OnKeyDown((UINT)wParam);
@@ -294,11 +325,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         {
-            sound->release();
             don->release();
             kat->release();
-            _system->close();
-            _system->release();
+            fsys.Release();
             PostQuitMessage(0);
         }
         break;
