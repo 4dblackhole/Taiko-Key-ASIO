@@ -21,7 +21,7 @@ FMOD_RESULT FmodSystem::Init()
     result = _system->setOutput(FMOD_OUTPUTTYPE_ASIO);
     if (result != FMOD_OK) return result;
 
-    _system->getNumDrivers(&driveCount);
+    result = _system->getNumDrivers(&driveCount);
     if (driveCount == 0)
     {
         if (MessageBox(NULL, _T("No ASIO driver detected."), _T("Buy your own Audio Interface."), MB_YESNO) == IDNO)

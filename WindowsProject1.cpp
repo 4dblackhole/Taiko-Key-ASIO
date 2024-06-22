@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "RhythmInputManager.h"
 #include "Object/FmodSystem.h"
+
 #include "WindowsProject1.h"
 
 #define MAX_LOADSTRING 100
@@ -158,33 +159,18 @@ static void RegisterKeyHook(const HWND targetWnd)
     RegisterRawInputDevices(&rawInputDev, 1, sizeof(RAWINPUTDEVICE));
 }
 
+
 static FmodSystem fsys;
-
-static FMOD::Sound* don(nullptr);
-static FMOD::Sound* kat(nullptr);
-UINT donLength{}, katLength{};
-
-static FMOD_RESULT result;
-
-static void PlayDon()
-{
-    static FMOD::Channel* localChannel(nullptr);
-    fsys.System()->playSound(don, 0, false, &localChannel);
-}
-
-static void PlayKat()
-{
-    static FMOD::Channel* localChannel(nullptr);
-    fsys.System()->playSound(kat, 0, false, &localChannel);
-}
-
-RhythmInputManager kddk;
+RhythmInputManager rhythmInputManager;
 
 static HWND hCombo, hComboDesc;
+static HWND hButtonKeyLoad;
 static HBITMAP bitmapFmodasio, oldbit;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    static FMOD_RESULT result;
+
     switch (message)
     {
     case WM_CREATE:
@@ -196,7 +182,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             70, DriverComboY, 300, 200, hWnd, (HMENU)HwndID::COMBO_DRIVER, hInst, NULL);
         hComboDesc = CreateWindow(_T("static"), _T("Driver:"), WS_CHILD | WS_VISIBLE | SS_CENTER,
             10, DriverComboY, 60, 24, hWnd, (HMENU)HwndID::STATIC_COMBO_DRIVER, hInst, NULL);
-
+        hButtonKeyLoad = CreateWindow(_T("button"), _T("Reload Key Bind"), WS_CHILD | WS_VISIBLE | BS_CENTER,
+            10, ReloadButtonY, 120, 30, hWnd, (HMENU)HwndID::BUTTON_RELOAD_INI, hInst, NULL);
         //font
         HDC dc = GetDC(hWnd);
         LOGFONT lf;
@@ -210,34 +197,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         SendMessage(hComboDesc, WM_SETFONT, (WPARAM)fontSize20, MAKELPARAM(TRUE, 0));
         ReleaseDC(hWnd, dc);
 
+        //fmod system init
         fsys.Init();
         fsys.EnumDriverListToComboBox(hCombo);
         SendMessage(hCombo, CB_SETCURSEL, fsys.GetDriveIdx(), 0);
 
-        result = fsys.System()->createStream("HitSounds/don.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &don);
-        result = fsys.System()->createStream("HitSounds/kat.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &kat);
+        result = rhythmInputManager.Init(fsys.System());
         if (result != FMOD_OK) return -1;
 
-        don->getLength(&donLength, FMOD_TIMEUNIT_MS);
-        kat->getLength(&katLength, FMOD_TIMEUNIT_MS);
-
-        kddk.RegisterAction(0, PlayKat);
-        kddk.RegisterAction(1, PlayDon);
-        kddk.RegisterAction(2, PlayDon);
-        kddk.RegisterAction(3, PlayKat);
         }
         break;
+    //change ctrl color
     case WM_CTLCOLORSTATIC:
         if ((HWND)lParam == hComboDesc)
         {
             SetTextColor((HDC)wParam, RGB(255, 255, 255));
             SetBkMode((HDC)wParam, TRANSPARENT);
             return (INT_PTR)(HBRUSH)GetStockObject(NULL_BRUSH);
-        }
-        break;
-    case WM_SETFONT:
-        {
-
         }
         break;
     case WM_COMMAND:
@@ -252,7 +228,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 {
                 case CBN_SELCHANGE:
                     {
-                        fsys.ChangeDrive(SendMessage(hCombo, CB_GETCURSEL, 0, 0));
+                        fsys.ChangeDrive((int)SendMessage(hCombo, CB_GETCURSEL, 0, 0));
                     }  
                     break;
                 }
@@ -270,6 +246,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+
+    //key hook
     case WM_INPUT:
         {
             if (wParam == RIM_INPUTSINK)
@@ -282,10 +260,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     switch(ri.data.keyboard.Flags)
                     {
                     case RI_KEY_MAKE: //KeyDown
-                        kddk.OnKeyDown(ri.data.keyboard.VKey);
+                        rhythmInputManager.OnKeyDown(ri.data.keyboard.VKey);
                         break;
                     case RI_KEY_BREAK: //KeyUp
-                        kddk.OnKeyUp(ri.data.keyboard.VKey);
+                        rhythmInputManager.OnKeyUp(ri.data.keyboard.VKey);
                         break;
                     }
 
@@ -300,13 +278,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KEYDOWN:
         {
-            kddk.OnKeyDown((UINT)wParam);
+            rhythmInputManager.OnKeyDown((UINT)wParam);
         }
         break;
     case WM_KEYUP:
-         {
-            kddk.OnKeyUp((UINT)wParam);
-         }
+        {
+            rhythmInputManager.OnKeyUp((UINT)wParam);
+        }
         break;
     case WM_PAINT:
         {
@@ -325,8 +303,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         {
-            don->release();
-            kat->release();
+            rhythmInputManager.Release();
             fsys.Release();
             PostQuitMessage(0);
         }

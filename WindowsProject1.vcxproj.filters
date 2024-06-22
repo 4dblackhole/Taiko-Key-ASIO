@@ -16,6 +16,9 @@
     <Filter Include="Object">
       <UniqueIdentifier>{f96c3c8d-e738-4ed2-ba5f-367f95dc2912}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Trace">
+      <UniqueIdentifier>{19ff029a-bf6c-46f3-9060-60f5045a17cf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -36,6 +39,9 @@
     <ClInclude Include="Object\FmodSystem.h">
       <Filter>Object</Filter>
     </ClInclude>
+    <ClInclude Include="Trace\Trace.h">
+      <Filter>Trace</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsProject1.cpp">
@@ -46,6 +52,9 @@
     </ClCompile>
     <ClCompile Include="Object\FmodSystem.cpp">
       <Filter>Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Trace\Trace.cpp">
+      <Filter>Trace</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -162,11 +162,13 @@
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RhythmInputManager.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Trace\Trace.h" />
     <ClInclude Include="WindowsProject1.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Object\FmodSystem.cpp" />
     <ClCompile Include="RhythmInputManager.cpp" />
+    <ClCompile Include="Trace\Trace.cpp" />
     <ClCompile Include="WindowsProject1.cpp" />
   </ItemGroup>
   <ItemGroup>

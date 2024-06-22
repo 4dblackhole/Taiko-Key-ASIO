@@ -2,8 +2,15 @@
 
 #include "RhythmInputManager.h"
 
+void RhythmInputManager::PlaySound(const SOUND_IDX idx)
+{
+    static FMOD::Channel* localChannel[(int)SOUND_IDX::MAX];
+    targetSystem->playSound(soundList[(int)idx], 0, false, &localChannel[(int)idx]);
+}
+
 RhythmInputManager::RhythmInputManager()
 {
+    InitKeyBind();
 }
 
 RhythmInputManager::~RhythmInputManager()
@@ -12,57 +19,47 @@ RhythmInputManager::~RhythmInputManager()
 
 void RhythmInputManager::OnKeyUp(UINT key)
 {
-    switch (key)
-    {
-    case keymap[0]: keybind[0] = false; break;
-    case keymap[1]: keybind[1] = false; break;
-    case keymap[2]: keybind[2] = false; break;
-    case keymap[3]: keybind[3] = false; break;
-    default: break;
-    }
+    keyState[key] = false;
 }
 
 void RhythmInputManager::OnKeyDown(UINT key)
 {
-    switch (key)
-    {
-    case keymap[0]:
-        if (!keybind[0])
-        {
-            keybind[0] = true;
-            action[0]();
-        }
-        break;
-    case keymap[1]:
-        if (!keybind[1])
-        {
-            keybind[1] = true;
-            action[1]();
-        }
-        break;
-
-    case keymap[2]:
-        if (!keybind[2])
-        {
-            keybind[2] = true;
-            action[2]();
-        }
-        break;
-
-    case keymap[3]:
-        if (!keybind[3])
-        {
-            keybind[3] = true;
-            action[3]();
-        }
-        break;
-    default:
-        break;
-    }
+    if (!keyState[key]) PlaySound(keyMap[key]);
+    keyState[key] = true;
 }
 
-void RhythmInputManager::RegisterAction(UINT id, void(*pf)(void))
+FMOD_RESULT RhythmInputManager::Init(FMOD::System* ptr)
 {
-    if (id >= keyAmount) return;
-    action[id] = pf;
+    targetSystem = ptr;
+    return InitSound();
+}
+
+FMOD_RESULT RhythmInputManager::Release()
+{
+    return ReleaseSound();
+}
+
+FMOD_RESULT RhythmInputManager::InitSound()
+{
+    FMOD_RESULT result = FMOD_OK;
+    result = targetSystem->createStream("HitSounds/don.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &soundList[(int)SOUND_IDX::DON]);
+    result = targetSystem->createStream("HitSounds/kat.wav", FMOD_LOOP_OFF | FMOD_CREATESAMPLE, nullptr, &soundList[(int)SOUND_IDX::KAT]);
+
+    return result;
+}
+
+FMOD_RESULT RhythmInputManager::ReleaseSound()
+{
+    FMOD_RESULT result = FMOD_OK;
+    for (FMOD::Sound*& it : soundList) result = it->release();
+    return result;
+}
+
+void RhythmInputManager::InitKeyBind()
+{
+    //TODO: read key bind information from ini file
+    keyMap.insert(make_pair('Z', SOUND_IDX::KAT));
+    keyMap.insert(make_pair('X', SOUND_IDX::DON));
+    keyMap.insert(make_pair(VK_OEM_PERIOD, SOUND_IDX::DON));
+    keyMap.insert(make_pair(VK_OEM_2, SOUND_IDX::KAT));
 }

@@ -14,6 +14,7 @@
 #include <string>
 #include <malloc.h>
 #include <iostream>
+#include <map>
 #include <memory.h>
 #include <tchar.h>
 #include <thread>
@@ -22,3 +23,5 @@
 #include <fmod.hpp>
 
 using namespace std;
+
+#include "Trace/Trace.h"
