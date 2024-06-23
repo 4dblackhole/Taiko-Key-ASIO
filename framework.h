@@ -10,10 +10,13 @@
 #include <windows.h>
 // C 런타임 헤더 파일입니다.
 #include <atlstr.h>
+#include <codecvt>
+#include <fstream>
 #include <stdlib.h>
 #include <string>
 #include <malloc.h>
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <memory.h>
 #include <tchar.h>
@@ -25,3 +28,11 @@
 using namespace std;
 
 #include "Trace/Trace.h"
+#include "Utility/StringToVirtualKeyCode.h"
+#include "Utility/UTF8ToWstring.h"
+
+namespace std
+{
+	_EXPORT_STD using tstring = basic_string<TCHAR, char_traits<TCHAR>, allocator<TCHAR>>;
+	_EXPORT_STD using tifstream = basic_ifstream<TCHAR, char_traits<TCHAR>>;
+}

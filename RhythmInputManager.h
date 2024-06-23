@@ -21,23 +21,25 @@ public:
 
 	FMOD_RESULT Init(FMOD::System* ptr);
 	FMOD_RESULT Release();
-
+	
 
 	void PlaySound(const SOUND_IDX idx);
 
 private:
-	FMOD::System* targetSystem = nullptr;
-
 	FMOD_RESULT InitSound();
 	FMOD_RESULT ReleaseSound();
 
 	void InitKeyBind();
+
+	void ReadIniFile();
+
 private:
 	bool keyState[INPUT_MAX]{};
 
-	map<unsigned char, SOUND_IDX> keyMap;
-	UINT keyAmount = 4;
+	map<byte, SOUND_IDX> keyMap;
+	map<UINT, FMOD::Sound*> soundList;
 
-	FMOD::Sound* soundList[(int)SOUND_IDX::MAX]{};
+	UINT keyAmount = 4;
+	FMOD::System* targetSystem = nullptr;
 };
 

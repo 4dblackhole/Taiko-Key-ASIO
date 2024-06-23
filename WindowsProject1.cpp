@@ -5,6 +5,8 @@
 #include "RhythmInputManager.h"
 #include "Object/FmodSystem.h"
 
+#include "Utility/StringToVirtualKeyCode.h"
+
 #include "WindowsProject1.h"
 
 #define MAX_LOADSTRING 100
@@ -182,7 +184,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             70, DriverComboY, 300, 200, hWnd, (HMENU)HwndID::COMBO_DRIVER, hInst, NULL);
         hComboDesc = CreateWindow(_T("static"), _T("Driver:"), WS_CHILD | WS_VISIBLE | SS_CENTER,
             10, DriverComboY, 60, 24, hWnd, (HMENU)HwndID::STATIC_COMBO_DRIVER, hInst, NULL);
-        hButtonKeyLoad = CreateWindow(_T("button"), _T("Reload Key Bind"), WS_CHILD | WS_VISIBLE | BS_CENTER,
+        hButtonKeyLoad = CreateWindow(_T("button"), _T("Reload ini File"), WS_CHILD | WS_VISIBLE | BS_CENTER,
             10, ReloadButtonY, 120, 30, hWnd, (HMENU)HwndID::BUTTON_RELOAD_INI, hInst, NULL);
         //font
         HDC dc = GetDC(hWnd);

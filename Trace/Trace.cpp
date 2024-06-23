@@ -1,6 +1,7 @@
 #include "Trace.h"
 #include <tchar.h>
 
+#if defined(DEBUG) | defined(_DEBUG)
 void _trace(LPCTSTR lpszFormat, ...)
 {
 	TCHAR lpszBuffer[1000];
@@ -12,10 +13,10 @@ void _trace(LPCTSTR lpszFormat, ...)
 	::OutputDebugString(lpszBuffer);
 }
 
-
 void TraceTimingPoint()
 {
 	INT64 t;
 	QueryPerformanceCounter((LARGE_INTEGER*)&t);
 	TRACE(_T("%lfms\n"), (float)((float)(t % 10000000) / 100) * 0.01f);
 }
+#endif

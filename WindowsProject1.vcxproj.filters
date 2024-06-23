@@ -19,6 +19,9 @@
     <Filter Include="Trace">
       <UniqueIdentifier>{19ff029a-bf6c-46f3-9060-60f5045a17cf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{bd9152fb-8c05-4c3b-a485-b31f788b530d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -42,6 +45,15 @@
     <ClInclude Include="Trace\Trace.h">
       <Filter>Trace</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\StringToVirtualKeyCode.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\SingletonBase.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UTF8ToWstring.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowsProject1.cpp">
@@ -55,6 +67,12 @@
     </ClCompile>
     <ClCompile Include="Trace\Trace.cpp">
       <Filter>Trace</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\StringToVirtualKeyCode.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\UTF8ToWstring.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
