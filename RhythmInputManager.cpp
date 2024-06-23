@@ -4,8 +4,17 @@
 
 void RhythmInputManager::PlaySound(const UINT idx)
 {
-    static map<UINT,FMOD::Channel*> localChannel;
-    if(soundList.find(idx)!=soundList.cend()) targetSystem->playSound(soundList[idx], 0, false, &localChannel[idx]);
+    if (soundList.find(idx) != soundList.cend())
+    {
+        targetSystem->playSound(soundList[idx], 0, false, &localChannel[idx]);
+        localChannel[idx]->setVolume(volume);
+    }
+}
+
+void RhythmInputManager::ChangeVolume(float val)
+{
+    volume = val;
+    
 }
 
 RhythmInputManager::RhythmInputManager()

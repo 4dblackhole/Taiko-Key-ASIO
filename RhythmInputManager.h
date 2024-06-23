@@ -26,6 +26,8 @@ public:
 
 	void PlaySound(const UINT idx);
 
+	void ChangeVolume(float val);
+
 private:
 	bool InitSound(const wstring& iniFile);
 	FMOD_RESULT ReleaseSound();
@@ -37,7 +39,10 @@ private:
 
 	map<byte, UINT> keyMap;
 	map<UINT, FMOD::Sound*> soundList;
+	map<UINT, FMOD::Channel*> localChannel;
 
 	FMOD::System* targetSystem = nullptr;
+
+	float volume = 1.0f;
 };
 
