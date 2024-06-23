@@ -1,7 +1,3 @@
-#include <Windows.h>
-#include <map>
-#include <tchar.h>
-
 #include "StringToVirtualKeyCode.h"
 
 #define VKMAP_INSERT(x) vkMap.insert(std::make_pair(_T(#x), x))
@@ -209,9 +205,9 @@ StringToVirtualKeyCode::~StringToVirtualKeyCode()
 {
 }
 
-::byte StringToVirtualKeyCode::Convert(const TCHAR* str)
+::byte StringToVirtualKeyCode::Convert(const std::tstring& str)
 {
-	if (lstrlen(str) == 1) // ASCII
+	if (str.length() == 1) // ASCII
 	{
 		const TCHAR& firstLetter = str[0];
 		if ((firstLetter >= _T('0') && firstLetter <= _T('9')) ||
