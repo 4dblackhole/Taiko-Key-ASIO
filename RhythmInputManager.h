@@ -31,7 +31,7 @@ private:
 	void InitKeyBind(const wstring& iniFile);
 
 	void ReadIniFile();
-
+	void WriteDefaultIniFile();
 private:
 	bool keyState[INPUT_MAX]{};
 

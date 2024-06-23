@@ -4,8 +4,8 @@
 
 void RhythmInputManager::PlaySound(const UINT idx)
 {
-    static FMOD::Channel* localChannel[128];
-    targetSystem->playSound(soundList[idx], 0, false, &localChannel[idx]);
+    static map<UINT,FMOD::Channel*> localChannel;
+    if(soundList.find(idx)!=soundList.cend()) targetSystem->playSound(soundList[idx], 0, false, &localChannel[idx]);
 }
 
 RhythmInputManager::RhythmInputManager()
@@ -161,37 +161,52 @@ void RhythmInputManager::InitKeyBind(const wstring& iniFile)
 
         if (endPos == wstring::npos)startPos = endPos;
         else startPos = endPos + 1;
-
-        int asdf = 3;
     }
-    /*
-    //TODO: read key bind information from ini file
-    keyMap.insert(make_pair('Z', 2));
-    keyMap.insert(make_pair('X', 1));
-    keyMap.insert(make_pair(VK_OEM_PERIOD, 1));
-    keyMap.insert(make_pair(VK_OEM_2, 2));
-    */
 }
 
 void RhythmInputManager::ReadIniFile()
 {
     ifstream in(iniFileName);
     string utf8Str;
-    if (in.is_open()) {
+    if (in.is_open()) 
+    {
         in.seekg(0, std::ios::end);
         size_t size = in.tellg();
         utf8Str.resize(size);
         in.seekg(0, std::ios::beg);
         in.read(&utf8Str[0], size);
 
-        wstring iniFile = UTF8ToWstring(utf8Str.c_str(), (int)size);
+        wstring iniFile = UTF8ToWstring(utf8Str);
 
         InitSound(iniFile);
         InitKeyBind(iniFile);
 
+        in.close();
     }
-    else {
-        std::cout << "파일을 찾을 수 없습니다!" << std::endl;
+    else
+    {
+        WriteDefaultIniFile();
+        MessageBox(NULL, _T("No ini file, Default ini file has created"), _T("alert"), MB_OK);
     }
 
+
+}
+
+void RhythmInputManager::WriteDefaultIniFile()
+{
+    ofstream out(_T("temp.ini"));
+    if (out.is_open())
+    {
+        out << WstringToUTF8(L"// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes\n");
+        out << WstringToUTF8(soundSetIdc) << endl;
+        out << WstringToUTF8(L"1: HitSounds/don.wav\n");
+        out << WstringToUTF8(L"2: HitSounds/kat.wav\n\n");
+        out << WstringToUTF8(keyBindIdc) << endl;
+        out << WstringToUTF8(L"Z: 2\n");
+        out << WstringToUTF8(L"X: 1\n");
+        out << WstringToUTF8(L"VK_OEM_PERIOD: 1\n");
+        out << WstringToUTF8(L"VK_OEM_2: 2\n");
+
+        out.close();
+    }
 }
