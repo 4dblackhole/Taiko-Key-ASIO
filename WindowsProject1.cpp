@@ -237,6 +237,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
 
+            case (int)HwndID::BUTTON_RELOAD_INI:
+            {
+                rhythmInputManager.ReadIniFile();
+            }
+            break;
+
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;

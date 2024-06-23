@@ -212,6 +212,7 @@ StringToVirtualKeyCode::~StringToVirtualKeyCode()
 		const TCHAR& firstLetter = str[0];
 		if ((firstLetter >= _T('0') && firstLetter <= _T('9')) ||
 			(firstLetter >= _T('A') && firstLetter <= _T('Z'))) return (byte)firstLetter;
+		else return 0; //unused virtual key (0x39 ~ 0x40)
 	}
 	else // VK
 	{

@@ -110,15 +110,20 @@ static bool GetKeyBindInfo(const wstring& desc, byte& key, UINT& soundKey)
     return true;
 }
 
-void RhythmInputManager::InitSound(const wstring& iniFile)
+bool RhythmInputManager::InitSound(const wstring& iniFile)
 {
     // pos below the line of [Sound Set]
+    if (iniFile.find(soundSetIdc) == wstring::npos) return false;
     size_t soundSetPos = iniFile.find(soundSetIdc) + soundSetIdc.size();
     while (iniFile[soundSetPos++] != L'\n');
 
     // pos below the line of [KeyBind]
+    if (iniFile.find(keyBindIdc) == wstring::npos) return false;
     size_t keyBindPos = iniFile.find(keyBindIdc, soundSetPos) + keyBindIdc.size();
     while (iniFile[keyBindPos++] != L'\n');
+
+    ReleaseSound();
+    soundList.clear();
 
     size_t startPos = soundSetPos;
     while (startPos < keyBindPos)
@@ -137,13 +142,17 @@ void RhythmInputManager::InitSound(const wstring& iniFile)
         }
         startPos = endPos + 1;
     }
+    return true;
 }
 
-void RhythmInputManager::InitKeyBind(const wstring& iniFile)
+bool RhythmInputManager::InitKeyBind(const wstring& iniFile)
 {
     // pos below the line of [KeyBind]
+    if (iniFile.find(keyBindIdc) == wstring::npos) return false;
     size_t keyBindPos = iniFile.find(keyBindIdc) + keyBindIdc.size();
     while (iniFile[keyBindPos++] != L'\n');
+
+    keyMap.clear();
 
     size_t endOfFilePos = iniFile.length();
     size_t startPos = keyBindPos;
@@ -162,6 +171,7 @@ void RhythmInputManager::InitKeyBind(const wstring& iniFile)
         if (endPos == wstring::npos)startPos = endPos;
         else startPos = endPos + 1;
     }
+    return true;
 }
 
 void RhythmInputManager::ReadIniFile()
@@ -178,8 +188,8 @@ void RhythmInputManager::ReadIniFile()
 
         wstring iniFile = UTF8ToWstring(utf8Str);
 
-        InitSound(iniFile);
-        InitKeyBind(iniFile);
+        if (InitSound(iniFile) == false) MessageBox(NULL, _T("No sound descrptions"), _T("ini error"), MB_OK);
+        if (InitKeyBind(iniFile) == false) MessageBox(NULL, _T("No key bind descrptions"), _T("ini error"), MB_OK);
 
         in.close();
     }
