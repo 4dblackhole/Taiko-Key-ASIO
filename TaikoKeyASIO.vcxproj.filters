@@ -33,7 +33,7 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="WindowsProject1.h">
+    <ClInclude Include="TaikoKeyASIO_main.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RhythmInputManager.h">
@@ -56,7 +56,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WindowsProject1.cpp">
+    <ClCompile Include="TaikoKeyASIO_main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="RhythmInputManager.cpp">
@@ -76,7 +76,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="WindowsProject1.rc">
+    <ResourceCompile Include="TaikoKeyASIO_main.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
@@ -84,7 +84,7 @@
     <Image Include="small.ico">
       <Filter>리소스 파일</Filter>
     </Image>
-    <Image Include="WindowsProject1.ico">
+    <Image Include="TaikoKeyASIO_main.ico">
       <Filter>리소스 파일</Filter>
     </Image>
     <Image Include="fmodasio.bmp">

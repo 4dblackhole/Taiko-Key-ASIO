@@ -42,8 +42,19 @@ void RhythmInputManager::OnKeyDown(UINT key)
 FMOD_RESULT RhythmInputManager::Init(FMOD::System* ptr)
 {
     targetSystem = ptr;
-    auto dd = STR_TO_VK_CONVERT(L"VK_OEM_PERIOD");
-    ReadIniFile();
+    if (!ReadIniFile())
+    {
+        if (WriteDefaultIniFile())
+        {
+            ReadIniFile();
+            MessageBox(NULL, _T("Default ini file has created"), _T("alert"), MB_OK);
+        }
+        else
+        {
+            MessageBox(NULL, _T("Default ini file creation failed"), _T("alert"), MB_OK);
+            return FMOD_RESULT_FORCEINT;
+        }
+    }
     return FMOD_OK;
 }
 
@@ -183,11 +194,12 @@ bool RhythmInputManager::InitKeyBind(const wstring& iniFile)
     return true;
 }
 
-void RhythmInputManager::ReadIniFile()
+bool RhythmInputManager::ReadIniFile()
 {
+    bool result = true;
     ifstream in(iniFileName);
     string utf8Str;
-    if (in.is_open()) 
+    if (in.is_open())
     {
         in.seekg(0, std::ios::end);
         size_t size = in.tellg();
@@ -197,23 +209,26 @@ void RhythmInputManager::ReadIniFile()
 
         wstring iniFile = UTF8ToWstring(utf8Str);
 
-        if (InitSound(iniFile) == false) MessageBox(NULL, _T("No sound descrptions"), _T("ini error"), MB_OK);
-        if (InitKeyBind(iniFile) == false) MessageBox(NULL, _T("No key bind descrptions"), _T("ini error"), MB_OK);
-
+        if (InitSound(iniFile) == false)
+        {
+            result = false;
+            MessageBox(NULL, _T("No sound descrptions"), _T("ini error"), MB_OK);
+        }
+        if (InitKeyBind(iniFile) == false)
+        {
+            result = false;
+            MessageBox(NULL, _T("No key bind descrptions"), _T("ini error"), MB_OK);
+        }
         in.close();
+        return result;
     }
-    else
-    {
-        WriteDefaultIniFile();
-        MessageBox(NULL, _T("No ini file, Default ini file has created"), _T("alert"), MB_OK);
-    }
-
-
+    else return false;
+    
 }
 
-void RhythmInputManager::WriteDefaultIniFile()
+bool RhythmInputManager::WriteDefaultIniFile()
 {
-    ofstream out(_T("temp.ini"));
+    ofstream out(iniFileName);
     if (out.is_open())
     {
         out << WstringToUTF8(L"// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes\n");
@@ -227,5 +242,7 @@ void RhythmInputManager::WriteDefaultIniFile()
         out << WstringToUTF8(L"VK_OEM_2: 2\n");
 
         out.close();
+        return true;
     }
+    return false;
 }

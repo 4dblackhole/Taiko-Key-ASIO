@@ -1,4 +1,4 @@
-﻿// WindowsProject1.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿// TaikoKeyASIO_main.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "framework.h"
@@ -7,7 +7,7 @@
 
 #include "Utility/StringToVirtualKeyCode.h"
 
-#include "WindowsProject1.h"
+#include "TaikoKeyASIO_main.h"
 
 #define MAX_LOADSTRING 100
 

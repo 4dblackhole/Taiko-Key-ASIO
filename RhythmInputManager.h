@@ -22,7 +22,7 @@ public:
 	FMOD_RESULT Init(FMOD::System* ptr);
 	FMOD_RESULT Release();
 	
-	void ReadIniFile();
+	bool ReadIniFile();
 
 	void PlaySound(const UINT idx);
 
@@ -33,7 +33,7 @@ private:
 	FMOD_RESULT ReleaseSound();
 	bool InitKeyBind(const wstring& iniFile);
 
-	void WriteDefaultIniFile();
+	bool WriteDefaultIniFile();
 private:
 	bool keyState[INPUT_MAX]{};
 

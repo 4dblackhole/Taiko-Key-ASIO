@@ -22,8 +22,9 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{06fe63e1-0bad-4bef-88d7-2d0d3d303815}</ProjectGuid>
-    <RootNamespace>WindowsProject1</RootNamespace>
+    <RootNamespace>TaikoKeyASIO_main</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>TaikoKeyASIO</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -166,7 +167,7 @@
     <ClInclude Include="Utility\SingletonBase.h" />
     <ClInclude Include="Utility\StringToVirtualKeyCode.h" />
     <ClInclude Include="Utility\UTF8ToWstring.h" />
-    <ClInclude Include="WindowsProject1.h" />
+    <ClInclude Include="TaikoKeyASIO_main.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Object\FmodSystem.cpp" />
@@ -174,15 +175,15 @@
     <ClCompile Include="Trace\Trace.cpp" />
     <ClCompile Include="Utility\StringToVirtualKeyCode.cpp" />
     <ClCompile Include="Utility\UTF8ToWstring.cpp" />
-    <ClCompile Include="WindowsProject1.cpp" />
+    <ClCompile Include="TaikoKeyASIO_main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="WindowsProject1.rc" />
+    <ResourceCompile Include="TaikoKeyASIO_main.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="fmodasio.bmp" />
     <Image Include="small.ico" />
-    <Image Include="WindowsProject1.ico" />
+    <Image Include="TaikoKeyASIO_main.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
