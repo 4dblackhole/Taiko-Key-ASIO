@@ -37,7 +37,7 @@ private:
 private:
 	bool keyState[INPUT_MAX]{};
 
-	map<byte, UINT> keyMap;
+	byte keyMap[INPUT_MAX]{};
 	map<UINT, FMOD::Sound*> soundList;
 	map<UINT, FMOD::Channel*> localChannel;
 

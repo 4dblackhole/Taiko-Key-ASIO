@@ -32,10 +32,8 @@ void RhythmInputManager::OnKeyUp(UINT key)
 
 void RhythmInputManager::OnKeyDown(UINT key)
 {
-    if ((!keyState[key]) && (keyMap.find(key) != keyMap.cend()))
-    {
-        PlaySound(keyMap[key]);
-    }
+    if (!keyState[key]) PlaySound(keyMap[key]);
+    
     keyState[key] = true;
 }
 
@@ -172,7 +170,7 @@ bool RhythmInputManager::InitKeyBind(const wstring& iniFile)
     size_t keyBindPos = iniFile.find(keyBindIdc) + keyBindIdc.size();
     while (iniFile[keyBindPos++] != L'\n');
 
-    keyMap.clear();
+    for (byte& it : keyMap) it = 0;
 
     size_t endOfFilePos = iniFile.length();
     size_t startPos = keyBindPos;
@@ -185,7 +183,7 @@ bool RhythmInputManager::InitKeyBind(const wstring& iniFile)
         UINT soundKey;
         if (GetKeyBindInfo(currentSoundDesc, vkey, soundKey) == true)
         {
-            keyMap.insert(make_pair(vkey, soundKey));
+            keyMap[vkey] = soundKey;
         }
 
         if (endPos == wstring::npos)startPos = endPos;
